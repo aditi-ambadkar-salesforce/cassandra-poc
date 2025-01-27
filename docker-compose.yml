@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  cassandra:
+    image: cassandra:latest  # Use the latest official Cassandra image
+    container_name: cassandra
+    ports:
+      - "9042:9042"  # Expose Cassandra's default CQL port
+      - "7000:7000"  # Native transport port
+      - "7001:7001"  # SSL port
+      - "7199:7199"  # JMX port
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TestCluster      # Set your cluster name
+      - CASSANDRA_DC=dc1                        # Data center name
+      - CASSANDRA_RACK=rack1                    # Rack name
+      - CASSANDRA_LISTEN_ADDRESS=cassandra      # Tell Cassandra to listen on the service name
+      - CASSANDRA_LISTEN_INTERFACE=eth0         # Network interface for Cassandra's internal communication
+      - CASSANDRA_RPC_ADDRESS=0.0.0.0          # RPC address to allow remote connections
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch  # Default snitch
+    networks:
+      - cassandra_network
+    volumes:
+      - cassandra_data:/var/lib/cassandra  # Persist Cassandra data on the host machine
+    restart: always  # Restart Cassandra container if it fails
+
+networks:
+  cassandra_network:
+    driver: bridge
+
+volumes:
+  cassandra_data:
+    driver: local
